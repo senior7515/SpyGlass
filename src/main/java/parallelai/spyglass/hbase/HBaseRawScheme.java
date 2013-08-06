@@ -39,6 +39,8 @@ import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
 import cascading.util.Util;
 
+import java.lang.reflect.Field;
+
 /**
  * The HBaseRawScheme class is a {@link Scheme} subclass. It is used in conjunction
  * with the {@HBaseRawTap} to allow for the reading and writing of data
@@ -271,13 +273,35 @@ public class HBaseRawScheme extends Scheme<JobConf, RecordReader, OutputCollecto
     }
 
     public static class ValueCopier implements DeprecatedInputFormatValueCopier<Result> {
+        private transient Field reqField;
 
         public ValueCopier() {
+            try{
+                reqField = Result.class.getDeclaredField("kvs");
+                reqField.setAccessible(true);
+            }catch(NoSuchFieldException e){
+                // not sure what to do...
+                // it needs to crash but don't want to change signature
+            }
         }
+
+        // copied form the hbase client source
+        // public void copyFrom(Result other) {
+        //     // this.row = null;
+        //     // this.familyMap = null;
+        //     // this.kvs = other.kvs;
+        // }
 
         public void copyValue(Result oldValue, Result newValue) {
             if (null != oldValue && null != newValue) {
-                oldValue.copyFrom(newValue);
+                // TODO: when we upgrade to a new version of hbase
+                // we can simply use oldValue.copyFrom(newValue)
+                //
+                try {
+                    reqField.set(oldValue,newValue.raw());
+                }catch (IllegalAccessException e){
+                    throw new RuntimeException(e);
+                }
             }
         }
 

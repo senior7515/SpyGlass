@@ -430,9 +430,7 @@ public class HBaseRecordReader implements
 
                             return true;
                         } else {
-                            LOG.debug(" Key (" + Bytes.toString(nextKey)
-                                    + ") return an EMPTY result. Get (" + theGet.getId()
-                                    + ")"); // alg0
+                            LOG.debug(" Key(" + Bytes.toString(nextKey) + ")");
 
                             String newKey;
                             while ((newKey = keyList.pollFirst()) != null) {
@@ -553,9 +551,7 @@ public class HBaseRecordReader implements
                                 Writables.copyWritable(result, value);
                                 return true;
                             } else {
-                                LOG.debug(String.format(
-                                        "+ Key (%s) return an EMPTY result. Get (%s)",
-                                        Bytes.toString(nextKey), theGet.getId())); // alg0
+                                LOG.debug(String.format("+ Key (%s) return an EMPTY result.", Bytes.toString(nextKey)));
 
                                 String newKey;
 
